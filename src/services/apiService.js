@@ -1,5 +1,6 @@
 import axios from 'axios';
-import Toast from 'react-native-simple-toast';
+// import Toast from 'react-native-simple-toast';
+import { showToast } from '../utils/toast';
 import { LOADING } from '../constants';
 import { useAppState } from './stateService';
 
@@ -32,7 +33,7 @@ export function useApiService() {
     const data = response.data;
 
     if (data.error) {
-      Toast.show(data.error.message, Toast.LONG);
+        showToast(data.error.message, 'LONG');
 
       if (errorCallback) {
         errorCallback(data.error.message);
@@ -189,14 +190,15 @@ const APIService = (context) => {
       .catch(error => handleCallback(error, null, errorCallback));
   };
 
-  const handleCallback = (response, callback, errorCallback) => {
+  // For the backwards compatibility version, make the same change:
+const handleCallback = (response, callback, errorCallback) => {
     context.update(LOADING, false);
-
+  
     const data = response.data;
-
+  
     if (data.error) {
-      Toast.show(data.error.message, Toast.LONG);
-
+      showToast(data.error.message, 'LONG');
+  
       if (errorCallback) {
         errorCallback(data.error.message);
       }
