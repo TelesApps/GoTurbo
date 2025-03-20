@@ -1,5 +1,4 @@
 import axios from 'axios';
-// import Toast from 'react-native-simple-toast';
 import { showToast } from '../utils/toast';
 import { LOADING } from '../constants';
 import { useAppState } from './stateService';
@@ -30,18 +29,26 @@ export function useApiService() {
   const handleCallback = (response, callback, errorCallback) => {
     state.update(LOADING, false);
 
-    const data = response.data;
-
-    if (data.error) {
-        showToast(data.error.message, 'LONG');
-
-      if (errorCallback) {
-        errorCallback(data.error.message);
+    try {
+      // Make sure data exists and has the expected structure
+      const data = response?.data;
+      
+      if (!data) {
+        showToast('Network error or invalid response', 'LONG');
+        if (errorCallback) errorCallback('Network error');
+        return;
       }
-    } else {
-      if (callback) {
-        callback(data.result);
+
+      if (data.error) {
+        showToast(data.error.message || 'An error occurred', 'LONG');
+        if (errorCallback) errorCallback(data.error.message);
+      } else {
+        if (callback) callback(data.result);
       }
+    } catch (err) {
+      console.error('Error in API callback handler:', err);
+      showToast('An unexpected error occurred', 'LONG');
+      if (errorCallback) errorCallback('Unexpected error');
     }
   };
 
@@ -182,31 +189,38 @@ const APIService = (context) => {
   };
 
   // Private methods
+  const handleCallback = (response, callback, errorCallback) => {
+    context.update(LOADING, false);
+
+    try {
+      // Make sure data exists and has the expected structure
+      const data = response?.data;
+      
+      if (!data) {
+        showToast('Network error or invalid response', 'LONG');
+        if (errorCallback) errorCallback('Network error');
+        return;
+      }
+
+      if (data.error) {
+        showToast(data.error.message || 'An error occurred', 'LONG');
+        if (errorCallback) errorCallback(data.error.message);
+      } else {
+        if (callback) callback(data.result);
+      }
+    } catch (err) {
+      console.error('Error in API callback handler:', err);
+      showToast('An unexpected error occurred', 'LONG');
+      if (errorCallback) errorCallback('Unexpected error');
+    }
+  };
+
   const post = (method, params, callback, errorCallback) => {
     context.update(LOADING, true);
 
     api.post('/', { method, params })
       .then(response => handleCallback(response, callback, errorCallback))
       .catch(error => handleCallback(error, null, errorCallback));
-  };
-
-  // For the backwards compatibility version, make the same change:
-const handleCallback = (response, callback, errorCallback) => {
-    context.update(LOADING, false);
-  
-    const data = response.data;
-  
-    if (data.error) {
-      showToast(data.error.message, 'LONG');
-  
-      if (errorCallback) {
-        errorCallback(data.error.message);
-      }
-    } else {
-      if (callback) {
-        callback(data.result);
-      }
-    }
   };
 
   // Keep the same method signatures for backward compatibility
@@ -227,7 +241,6 @@ const handleCallback = (response, callback, errorCallback) => {
     );
   };
 
-  // Include all other methods the same way...
   const getGroup = (groupId, callback, errorCallback) => {
     const params = { 
       typeName: 'Group', 
@@ -241,14 +254,78 @@ const handleCallback = (response, callback, errorCallback) => {
     post('Get', params, callback, errorCallback);
   };
 
-  // Add the remaining methods here...
-  // getDevices, getDevicesByGroups, getDeviceById, etc.
+  const getDevices = (groupId, callback, errorCallback) => {
+    const params = { 
+      typeName: 'Device', 
+      search: { 
+        groups: [{ id: groupId }] 
+      }, 
+      credentials: context.credentials 
+    };
 
-  // Return the same interface
+    post('Get', params, callback, errorCallback);
+  };
+
+  const getDevicesByGroups = (groups, callback, errorCallback) => {
+    const params = { 
+      typeName: 'Device', 
+      search: { 
+        groups 
+      }, 
+      credentials: context.credentials 
+    };
+
+    post('Get', params, callback, errorCallback);
+  };
+
+  const getDeviceById = (id, callback, errorCallback) => {
+    const params = { 
+      typeName: 'Device', 
+      search: { 
+        id 
+      }, 
+      credentials: context.credentials 
+    };
+
+    post('Get', params, callback, errorCallback);
+  };
+
+  const getDevicesStatusInfo = (groupId, callback, errorCallback) => {
+    const params = { 
+      typeName: 'DeviceStatusInfo', 
+      search: { 
+        deviceSearch: { 
+          groups: [{ id: groupId }] 
+        } 
+      }, 
+      credentials: context.credentials 
+    };
+
+    post('Get', params, callback, errorCallback);
+  };
+
+  const getDevicesStatusInfoByGroups = (groups, callback, errorCallback) => {
+    const params = { 
+      typeName: 'DeviceStatusInfo', 
+      search: { 
+        deviceSearch: { 
+          groups 
+        } 
+      }, 
+      credentials: context.credentials 
+    };
+
+    post('Get', params, callback, errorCallback);
+  };
+
   return {
     authenticate,
     getGroup,
-    // Include all other methods
+    getDevices,
+    getDevicesByGroups,
+    getDeviceById,
+    getDevicesStatusInfo,
+    getDevicesStatusInfoByGroups
   };
 };
 
