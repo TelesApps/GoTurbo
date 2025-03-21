@@ -66,10 +66,12 @@ export function useApiService() {
       'Authenticate',
       credentials,
       function(response) {
+        // Make sure this is properly updating state with the credentials
         state.update(
           'credentials',
           response.credentials,
           function() {
+            console.log("Credentials stored in state:", response.credentials);
             if (callback) { 
               callback(response); 
             }
@@ -144,6 +146,13 @@ export function useApiService() {
   };
 
   const getDevicesStatusInfoByGroups = (groups, callback, errorCallback) => {
+    // Check for credentials
+  if (!state.credentials) {
+    showToast('The Credentials Object is missing or empty', 'LONG');
+    if (errorCallback) errorCallback('Missing credentials');
+    return;
+  }
+
     const params = { 
       typeName: 'DeviceStatusInfo', 
       search: { 
@@ -229,11 +238,15 @@ const APIService = (context) => {
       'Authenticate',
       credentials,
       function(response) {
-        context.update(
+        // Make sure this is properly updating state with the credentials
+        state.update(
           'credentials',
           response.credentials,
           function() {
-            if (callback) { callback(response); }
+            console.log("Credentials stored in state:", response.credentials);
+            if (callback) { 
+              callback(response); 
+            }
           }
         );
       },

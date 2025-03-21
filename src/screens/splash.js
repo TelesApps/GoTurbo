@@ -12,18 +12,30 @@ function SplashScreen({ navigation }) {
   const api = useApiService();
 
   useEffect(() => {
-    // Start authentication process
+    // Check if user is already authenticated first
+    const currentUser = getCurrentUser();
+
+    if (currentUser) {
+      console.log("User already authenticated, checking user data");
+      checkUserAuthenticated();
+      return;
+    }
+
+    // Only try API authenticate if no current user
+    console.log("No current user, attempting API authentication");
+
     api.authenticate(
-      function(response) {
-        // In Expo, we need a different approach for notifications
-        // requestNotificationPermissions() would go here
-        
-        // For now, proceed to check authentication
-        setTimeout(() => { 
-          checkUserAuthenticated(); 
+      function (response) {
+        // This should be storing credentials in state
+        console.log("API authentication successful, credentials stored");
+        setTimeout(() => {
+          checkUserAuthenticated();
         }, 500);
       },
-      null
+      function (error) {
+        console.log("API authentication error:", error);
+        navigation.replace('Login');
+      }
     );
   }, []);
 
@@ -44,7 +56,7 @@ function SplashScreen({ navigation }) {
         // User still exists, get user data
         getUser(currentUser.uid);
       })
-      .catch(function(error) {
+      .catch(function (error) {
         console.log(error);
         // User probably deleted
         navigation.replace('Login');
@@ -54,16 +66,16 @@ function SplashScreen({ navigation }) {
   const getUser = (uid) => {
     // Updated for Firebase Web SDK
     const userRef = doc(firestore, 'users', uid);
-    
+
     getDoc(userRef)
       .then((docSnap) => {
         if (docSnap.exists()) {
           console.log(docSnap.data());
-          
+
           state.update(
             'user',
             docSnap.data(),
-            function() {
+            function () {
               navigation.replace('Home');
             }
           );
@@ -72,7 +84,7 @@ function SplashScreen({ navigation }) {
           navigation.replace('Login');
         }
       })
-      .catch(function(error) {
+      .catch(function (error) {
         console.log(error);
         navigation.replace('Login');
       });
@@ -88,7 +100,7 @@ function SplashScreen({ navigation }) {
       //   const token = await Notifications.getExpoPushTokenAsync();
       //   state.update('fcmToken', token.data);
       // }
-      
+
       // For now, we'll just return a resolved promise
       return Promise.resolve();
     } catch (error) {
@@ -107,8 +119,8 @@ function SplashScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, 
-    justifyContent: 'center', 
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center'
   },
   backgroundImage: {
