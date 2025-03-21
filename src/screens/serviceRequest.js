@@ -7,7 +7,7 @@ import {
   ScrollView,
   View,
   StyleSheet,
-  Pressable, // Added proper import
+  Pressable,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { IndexPath, Select, SelectItem } from '@ui-kitten/components';
@@ -15,7 +15,15 @@ import { collection, getDocs, doc, setDoc } from 'firebase/firestore';
 
 import { useAppState } from '../services/stateService';
 import { useApiService } from '../services/apiService';
-import { COLORS, LOADING, FULL_NAME, CALL_BACK_PHONE, TRACTOR_ID, ISSUE, ISSUE_OTHER } from '../constants';
+import {
+  COLORS,
+  LOADING,
+  FULL_NAME,
+  CALL_BACK_PHONE,
+  TRACTOR_ID,
+  ISSUE,
+  ISSUE_OTHER,
+} from '../constants';
 import { getCurrentUser, formatPhoneNumber, stringHasValue, getToday } from '../constants';
 
 import GTLabel from '../components/gtLabel';
@@ -92,25 +100,31 @@ function ServiceRequestScreen() {
     }
     // Fetch available tractors (devices) for the user's groups
     api.getDevicesByGroups(searchGroups, (response) => {
-      setTractors(response);
-      if (!route.params) {
-        update(TRACTOR_ID, response[0]?.name || '');
-      } else {
-        const device = route.params;
-        for (let i = 0; i < response.length; i++) {
-          const tractor = response[i];
-          if (tractor.id === device.device.device.id) {
-            setTractorIndex(new IndexPath(i));
-            update(TRACTOR_ID, tractor.name);
-            break;
+      if (response && response.length > 0) {
+        setTractors(response);
+        if (!route.params) {
+          update(TRACTOR_ID, response[0]?.name || '');
+        } else {
+          const device = route.params;
+          for (let i = 0; i < response.length; i++) {
+            const tractor = response[i];
+            if (tractor.id === device.device.device.id) {
+              setTractorIndex(new IndexPath(i));
+              update(TRACTOR_ID, tractor.name);
+              break;
+            }
           }
         }
+      } else {
+        // No tractor data available, clear any tractor id
+        setTractors([]);
+        update(TRACTOR_ID, '');
       }
     });
   }, [route]);
 
   const renderTractors = () => {
-    if (!tractors || tractors.length === 0) return [];
+    if (!tractors || tractors.length === 0) return null;
     return tractors.map((tractor, i) => (
       <SelectItem key={i} title={tractor.name} size="small" />
     ));
@@ -141,10 +155,11 @@ function ServiceRequestScreen() {
 
   const onSubmitPressed = async () => {
     const phoneNumber = formatPhoneNumber(serviceRequest.call_back_phone);
+    // If tractor data is available, validate tractor_id; otherwise skip it
     if (
       !stringHasValue(serviceRequest.full_name) ||
       !stringHasValue(serviceRequest.call_back_phone) ||
-      !stringHasValue(serviceRequest.tractor_id)
+      (tractors.length > 0 && !stringHasValue(serviceRequest.tractor_id))
     ) {
       showToast('Please fill out entire form prior to submission.', 'LONG');
       return;
@@ -168,7 +183,6 @@ function ServiceRequestScreen() {
 
     try {
       // Use Firestore web SDK to create a new service request document
-      await setDoc(doc(collection(firestore, 'serviceRequests')));
       await setDoc(doc(collection(firestore, 'serviceRequests')), {
         ...serviceRequest,
         uid: getCurrentUser().uid,
@@ -223,20 +237,26 @@ function ServiceRequestScreen() {
               onChangeText={(text) => update(CALL_BACK_PHONE, text)}
             />
           </View>
-          <View style={styles.inputContainer}>
-            <GTLabel label="Select Tractor ID" />
-            <Select
-              size="small"
-              style={styles.select}
-              placeholder="select ..."
-              selectedIndex={tractorIndex}
-              onSelect={(index) => setSelectedTractor(index)}
-              value={getSelectedTractor()}
-            >
-              {renderTractors()}
-            </Select>
-            <View style={styles.divider} />
-          </View>
+          {tractors.length > 0 ? (
+            <View style={styles.inputContainer}>
+              <GTLabel label="Select Tractor ID" />
+              <Select
+                size="small"
+                style={styles.select}
+                placeholder="select ..."
+                selectedIndex={tractorIndex}
+                onSelect={(index) => setSelectedTractor(index)}
+                value={getSelectedTractor()}
+              >
+                {renderTractors()}
+              </Select>
+              <View style={styles.divider} />
+            </View>
+          ) : (
+            <View style={styles.inputContainer}>
+              <GTLabel label="No tractors available" />
+            </View>
+          )}
           <View style={styles.inputContainer}>
             <GTLabel label="Select Issue(s)" labelStyle={styles.issueLabel} />
             {issues.map((issue, index) => (

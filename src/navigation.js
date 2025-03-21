@@ -11,8 +11,8 @@ import MapScreen from './screens/map';
 import ServiceRequestScreen from './screens/serviceRequest';
 import ServiceHistoryScreen from './screens/serviceHistory';
 import AccountScreen from './screens/account';
-// import PrivacyScreen from './screens/privacy';
-// import HelpScreen from './screens/help';
+import PrivacyScreen from './screens/privacy';
+import HelpScreen from './screens/help';
 
 const Stack = createStackNavigator();
 
@@ -35,8 +35,8 @@ function AppNavigator() {
         <Stack.Screen name="ServiceRequest" component={ServiceRequestScreen} />
         <Stack.Screen name="ServiceHistory" component={ServiceHistoryScreen} />
         <Stack.Screen name="Account" component={AccountScreen} />
-        {/* <Stack.Screen name="Privacy" component={PrivacyScreen} /> */}
-        {/* <Stack.Screen name="Help" component={HelpScreen} /> */}
+        <Stack.Screen name="Privacy" component={PrivacyScreen} />
+        <Stack.Screen name="Help" component={HelpScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
