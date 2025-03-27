@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "GoTurbo",
+    "name": "Go Turbo",
     "slug": "GoTurbo",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -13,16 +13,26 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
+      "buildNumber": "2.0.0",
       "supportsTablet": true
     },
     "android": {
+      "versionCode": 2,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.turbotruck.goturbo"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "c40f8863-2445-45c0-94f0-eff9fd609cc2"
+      }
     }
   }
 }
+
+
