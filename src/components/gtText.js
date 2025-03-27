@@ -9,6 +9,7 @@ function GTText({
   viewStyle,
   textInputStyle,
   placeholderTextColor,
+  props,
   ...restProps
 }) {
   const handleChangeText = (text) => {
@@ -20,6 +21,7 @@ function GTText({
       <TextInput
         ref={(input) => inputRef && inputRef(input)}
         style={{ ...styles.textInput, ...textInputStyle }}
+        placeholder={props.placeholder}
         placeholderTextColor={placeholderTextColor || COLORS.WHITE}
         value={value}
         onChangeText={handleChangeText}
