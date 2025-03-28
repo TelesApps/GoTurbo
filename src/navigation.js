@@ -43,7 +43,7 @@ function AppNavigator() {
           animationEnabled: false,
           headerShown: false
         }} 
-        initialRouteName="Test"
+        initialRouteName="Splash"
       >
         {/* Test screen as initial route */}
         <Stack.Screen name="Test" component={TestScreen} />

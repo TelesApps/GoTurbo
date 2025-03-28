@@ -22,7 +22,15 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.turbotruck.goturbo"
+      "package": "com.turbotruck.goturbo",
+      "permissions": [
+        "android.permission.INTERNET"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyANiZ8ktH7GVs_JixxbYVyIdeYxNG5ZTxo"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -34,5 +42,3 @@
     }
   }
 }
-
-
