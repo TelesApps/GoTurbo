@@ -13,11 +13,11 @@ function SplashScreen({ navigation }) {
 
   useEffect(() => {
     state.update(LOADING, true);
-
-    // Use Firebase's auth state observer instead of getCurrentUser
+  
+    // Use Firebase's auth state observer
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
-        console.log("User already authenticated, checking user data", currentUser.uid);
+        console.log("User already authenticated, getting user data");
         // Get user info from Firestore
         getUser(currentUser.uid);
       } else {
@@ -25,16 +25,10 @@ function SplashScreen({ navigation }) {
         // Only try API authenticate if no current user
         api.authenticate(
           function (response) {
-            // This should be storing credentials in state
             console.log("API authentication successful, credentials stored");
-            // Check user auth again after API authentication
-            const user = auth.currentUser;
-            if (user) {
-              getUser(user.uid);
-            } else {
-              state.update(LOADING, false);
-              navigation.replace('Login');
-            }
+            // Direct to login since we don't have a current user
+            state.update(LOADING, false);
+            navigation.replace('Login');
           },
           function (error) {
             console.log("API authentication error:", error);
@@ -44,7 +38,7 @@ function SplashScreen({ navigation }) {
         );
       }
     });
-
+  
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
