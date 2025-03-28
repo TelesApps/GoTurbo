@@ -2,6 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { COLORS } from './constants';
+import { View, Text } from 'react-native';
 
 // Import screens (uncomment as you implement them)
 import SplashScreen from './screens/splash';
@@ -14,6 +15,23 @@ import AccountScreen from './screens/account';
 import PrivacyScreen from './screens/privacy';
 import HelpScreen from './screens/help';
 
+// Simple test screen component
+function TestScreen() {
+  return (
+    <View style={{ 
+      flex: 1, 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      backgroundColor: COLORS.BACKGROUND 
+    }}>
+      <Text style={{ color: COLORS.WHITE, fontSize: 24 }}>Test Screen Working</Text>
+      <Text style={{ color: COLORS.WHITE, marginTop: 20 }}>
+        If you can see this, the basic app structure is working
+      </Text>
+    </View>
+  );
+}
+
 const Stack = createStackNavigator();
 
 function AppNavigator() {
@@ -25,9 +43,12 @@ function AppNavigator() {
           animationEnabled: false,
           headerShown: false
         }} 
-        initialRouteName="Splash"
+        initialRouteName="Test"
       >
-        {/* Uncomment these as you implement the screens */}
+        {/* Test screen as initial route */}
+        <Stack.Screen name="Test" component={TestScreen} />
+        
+        {/* Regular app screens */}
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
