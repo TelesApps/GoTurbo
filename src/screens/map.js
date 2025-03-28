@@ -31,7 +31,6 @@ function MapScreen({ navigation }) {
 
     useEffect(() => {
         // Log the state to debug
-        console.log("Current state credentials:", state.credentials);
 
         if (!state.credentials) {
             console.log("No credentials available - trying to authenticate");

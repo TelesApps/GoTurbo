@@ -71,7 +71,6 @@ export function useApiService() {
           'credentials',
           response.credentials,
           function() {
-            console.log("Credentials stored in state:", response.credentials);
             if (callback) { 
               callback(response); 
             }

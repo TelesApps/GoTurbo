@@ -53,7 +53,6 @@ function SplashScreen({ navigation }) {
       .then((docSnap) => {
         if (docSnap.exists()) {
           const userData = docSnap.data();
-          console.log("User data retrieved:", userData);
 
           state.update(
             'user',
