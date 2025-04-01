@@ -14,7 +14,11 @@
     },
     "ios": {
       "buildNumber": "2.0.0",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.turbotruck.goturbo",
+      "config": {
+        "googleMapsApiKey": "AIzaSyCCghI5-K0zVqoINRtURVaHOv8FoIfWZWA"
+      }
     },
     "android": {
       "versionCode": 2,
@@ -28,7 +32,7 @@
       ],
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyANiZ8ktH7GVs_JixxbYVyIdeYxNG5ZTxo"
+          "apiKey": "AIzaSyCCghI5-K0zVqoINRtURVaHOv8FoIfWZWA"
         }
       }
     },
