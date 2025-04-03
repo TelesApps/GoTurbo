@@ -21,8 +21,8 @@ export function useApiService() {
   
   const credentials = { 
     database: 'turbotruck', 
-    userName: 'bryan@vardeman.com', 
-    password: 'turbotruck' 
+    userName: 'admin@vardeman.com', 
+    password: 'h1XJv#k4yI!ChpM5' 
   };
 
   // Private helper methods
@@ -192,8 +192,8 @@ const APIService = (context) => {
   
   const credentials = { 
     database: 'turbotruck', 
-    userName: 'bryan@vardeman.com', 
-    password: 'turbotruck' 
+    userName: 'admin@vardeman.com', 
+    password: 'h1XJv#k4yI!ChpM5' 
   };
 
   // Private methods
