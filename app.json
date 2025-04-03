@@ -18,6 +18,9 @@
       "bundleIdentifier": "com.turbotruck.goturbo",
       "config": {
         "googleMapsApiKey": "AIzaSyCCghI5-K0zVqoINRtURVaHOv8FoIfWZWA"
+      },
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {

@@ -13,6 +13,9 @@
         "applicationArchivePath": "android/app/build/outputs/apk/release/app-release.apk",
         "buildType": "apk"
       },
+      "ios": {
+        "simulator": true
+      },
       "distribution": "internal"
     },
     "production": {
