@@ -71,6 +71,7 @@ export function useApiService() {
           'credentials',
           response.credentials,
           function() {
+            console.log("Credentials stored in state:", response.credentials);
             if (callback) { 
               callback(response); 
             }
@@ -82,6 +83,34 @@ export function useApiService() {
   };
 
   const getGroup = (groupId, callback, errorCallback) => {
+    // Check for credentials before proceeding
+    if (!state.credentials) {
+      console.log("No credentials available - trying to authenticate");
+      
+      authenticate(
+        function(response) {
+          console.log("Authentication successful, now fetching group");
+          // Now that we're authenticated, retry the original request
+          const params = { 
+            typeName: 'Group', 
+            search: { 
+              includeAllTrees: false, 
+              id: groupId 
+            }, 
+            credentials: state.credentials 
+          };
+
+          post('Get', params, callback, errorCallback);
+        },
+        function(error) {
+          console.log("Authentication failed:", error);
+          showToast('Unable to authenticate with the tracking service', 'LONG');
+          if (errorCallback) errorCallback('Authentication failed');
+        }
+      );
+      return;
+    }
+
     const params = { 
       typeName: 'Group', 
       search: { 
@@ -95,6 +124,33 @@ export function useApiService() {
   };
 
   const getDevices = (groupId, callback, errorCallback) => {
+    // Check for credentials before proceeding
+    if (!state.credentials) {
+      console.log("No credentials available - trying to authenticate");
+      
+      authenticate(
+        function(response) {
+          console.log("Authentication successful, now fetching devices");
+          // Now that we're authenticated, retry the original request
+          const params = { 
+            typeName: 'Device', 
+            search: { 
+              groups: [{ id: groupId }] 
+            }, 
+            credentials: state.credentials 
+          };
+
+          post('Get', params, callback, errorCallback);
+        },
+        function(error) {
+          console.log("Authentication failed:", error);
+          showToast('Unable to authenticate with the tracking service', 'LONG');
+          if (errorCallback) errorCallback('Authentication failed');
+        }
+      );
+      return;
+    }
+
     const params = { 
       typeName: 'Device', 
       search: { 
@@ -107,6 +163,33 @@ export function useApiService() {
   };
 
   const getDevicesByGroups = (groups, callback, errorCallback) => {
+    // Check for credentials before proceeding
+    if (!state.credentials) {
+      console.log("No credentials available - trying to authenticate");
+      
+      authenticate(
+        function(response) {
+          console.log("Authentication successful, now fetching devices");
+          // Now that we're authenticated, retry the original request
+          const params = { 
+            typeName: 'Device', 
+            search: { 
+              groups 
+            }, 
+            credentials: state.credentials 
+          };
+
+          post('Get', params, callback, errorCallback);
+        },
+        function(error) {
+          console.log("Authentication failed:", error);
+          showToast('Unable to authenticate with the tracking service', 'LONG');
+          if (errorCallback) errorCallback('Authentication failed');
+        }
+      );
+      return;
+    }
+
     const params = { 
       typeName: 'Device', 
       search: { 
@@ -119,6 +202,33 @@ export function useApiService() {
   };
 
   const getDeviceById = (id, callback, errorCallback) => {
+    // Check for credentials before proceeding
+    if (!state.credentials) {
+      console.log("No credentials available - trying to authenticate");
+      
+      authenticate(
+        function(response) {
+          console.log("Authentication successful, now fetching device");
+          // Now that we're authenticated, retry the original request
+          const params = { 
+            typeName: 'Device', 
+            search: { 
+              id 
+            }, 
+            credentials: state.credentials 
+          };
+
+          post('Get', params, callback, errorCallback);
+        },
+        function(error) {
+          console.log("Authentication failed:", error);
+          showToast('Unable to authenticate with the tracking service', 'LONG');
+          if (errorCallback) errorCallback('Authentication failed');
+        }
+      );
+      return;
+    }
+
     const params = { 
       typeName: 'Device', 
       search: { 
@@ -131,6 +241,35 @@ export function useApiService() {
   };
 
   const getDevicesStatusInfo = (groupId, callback, errorCallback) => {
+    // Check for credentials before proceeding
+    if (!state.credentials) {
+      console.log("No credentials available - trying to authenticate");
+      
+      authenticate(
+        function(response) {
+          console.log("Authentication successful, now fetching device status info");
+          // Now that we're authenticated, retry the original request
+          const params = { 
+            typeName: 'DeviceStatusInfo', 
+            search: { 
+              deviceSearch: { 
+                groups: [{ id: groupId }] 
+              } 
+            }, 
+            credentials: state.credentials 
+          };
+
+          post('Get', params, callback, errorCallback);
+        },
+        function(error) {
+          console.log("Authentication failed:", error);
+          showToast('Unable to authenticate with the tracking service', 'LONG');
+          if (errorCallback) errorCallback('Authentication failed');
+        }
+      );
+      return;
+    }
+
     const params = { 
       typeName: 'DeviceStatusInfo', 
       search: { 
@@ -146,11 +285,33 @@ export function useApiService() {
 
   const getDevicesStatusInfoByGroups = (groups, callback, errorCallback) => {
     // Check for credentials
-  if (!state.credentials) {
-    showToast('The Credentials Object is missing or empty', 'LONG');
-    if (errorCallback) errorCallback('Missing credentials');
-    return;
-  }
+    if (!state.credentials) {
+      console.log("No credentials available - trying to authenticate");
+      
+      authenticate(
+        function(response) {
+          console.log("Authentication successful, now fetching device status info");
+          // Now that we're authenticated, retry the original request
+          const params = { 
+            typeName: 'DeviceStatusInfo', 
+            search: { 
+              deviceSearch: { 
+                groups 
+              } 
+            }, 
+            credentials: state.credentials 
+          };
+
+          post('Get', params, callback, errorCallback);
+        },
+        function(error) {
+          console.log("Authentication failed:", error);
+          showToast('Unable to authenticate with the tracking service', 'LONG');
+          if (errorCallback) errorCallback('Authentication failed');
+        }
+      );
+      return;
+    }
 
     const params = { 
       typeName: 'DeviceStatusInfo', 
@@ -189,6 +350,7 @@ const APIService = (context) => {
       'cache-control': 'no-cache' 
     } 
   });
+  
   
   const credentials = { 
     database: 'turbotruck', 
@@ -238,11 +400,11 @@ const APIService = (context) => {
       credentials,
       function(response) {
         // Make sure this is properly updating state with the credentials
-        state.update(
+        context.update(
           'credentials',
           response.credentials,
           function() {
-            console.log("Credentials stored in state:", response.credentials);
+            console.log("Credentials stored in context:", response.credentials);
             if (callback) { 
               callback(response); 
             }
@@ -254,6 +416,34 @@ const APIService = (context) => {
   };
 
   const getGroup = (groupId, callback, errorCallback) => {
+    // Check for credentials before proceeding
+    if (!context.credentials) {
+      console.log("No credentials available - trying to authenticate");
+      
+      authenticate(
+        function(response) {
+          console.log("Authentication successful, now fetching group");
+          // Now that we're authenticated, retry the original request
+          const params = { 
+            typeName: 'Group', 
+            search: { 
+              includeAllTrees: false, 
+              id: groupId 
+            }, 
+            credentials: context.credentials 
+          };
+
+          post('Get', params, callback, errorCallback);
+        },
+        function(error) {
+          console.log("Authentication failed:", error);
+          showToast('Unable to authenticate with the tracking service', 'LONG');
+          if (errorCallback) errorCallback('Authentication failed');
+        }
+      );
+      return;
+    }
+
     const params = { 
       typeName: 'Group', 
       search: { 
@@ -267,6 +457,33 @@ const APIService = (context) => {
   };
 
   const getDevices = (groupId, callback, errorCallback) => {
+    // Check for credentials before proceeding
+    if (!context.credentials) {
+      console.log("No credentials available - trying to authenticate");
+      
+      authenticate(
+        function(response) {
+          console.log("Authentication successful, now fetching devices");
+          // Now that we're authenticated, retry the original request
+          const params = { 
+            typeName: 'Device', 
+            search: { 
+              groups: [{ id: groupId }] 
+            }, 
+            credentials: context.credentials 
+          };
+
+          post('Get', params, callback, errorCallback);
+        },
+        function(error) {
+          console.log("Authentication failed:", error);
+          showToast('Unable to authenticate with the tracking service', 'LONG');
+          if (errorCallback) errorCallback('Authentication failed');
+        }
+      );
+      return;
+    }
+
     const params = { 
       typeName: 'Device', 
       search: { 
@@ -279,6 +496,33 @@ const APIService = (context) => {
   };
 
   const getDevicesByGroups = (groups, callback, errorCallback) => {
+    // Check for credentials before proceeding
+    if (!context.credentials) {
+      console.log("No credentials available - trying to authenticate");
+      
+      authenticate(
+        function(response) {
+          console.log("Authentication successful, now fetching devices");
+          // Now that we're authenticated, retry the original request
+          const params = { 
+            typeName: 'Device', 
+            search: { 
+              groups 
+            }, 
+            credentials: context.credentials 
+          };
+
+          post('Get', params, callback, errorCallback);
+        },
+        function(error) {
+          console.log("Authentication failed:", error);
+          showToast('Unable to authenticate with the tracking service', 'LONG');
+          if (errorCallback) errorCallback('Authentication failed');
+        }
+      );
+      return;
+    }
+
     const params = { 
       typeName: 'Device', 
       search: { 
@@ -291,6 +535,33 @@ const APIService = (context) => {
   };
 
   const getDeviceById = (id, callback, errorCallback) => {
+    // Check for credentials before proceeding
+    if (!context.credentials) {
+      console.log("No credentials available - trying to authenticate");
+      
+      authenticate(
+        function(response) {
+          console.log("Authentication successful, now fetching device");
+          // Now that we're authenticated, retry the original request
+          const params = { 
+            typeName: 'Device', 
+            search: { 
+              id 
+            }, 
+            credentials: context.credentials 
+          };
+
+          post('Get', params, callback, errorCallback);
+        },
+        function(error) {
+          console.log("Authentication failed:", error);
+          showToast('Unable to authenticate with the tracking service', 'LONG');
+          if (errorCallback) errorCallback('Authentication failed');
+        }
+      );
+      return;
+    }
+
     const params = { 
       typeName: 'Device', 
       search: { 
@@ -303,6 +574,35 @@ const APIService = (context) => {
   };
 
   const getDevicesStatusInfo = (groupId, callback, errorCallback) => {
+    // Check for credentials before proceeding
+    if (!context.credentials) {
+      console.log("No credentials available - trying to authenticate");
+      
+      authenticate(
+        function(response) {
+          console.log("Authentication successful, now fetching device status info");
+          // Now that we're authenticated, retry the original request
+          const params = { 
+            typeName: 'DeviceStatusInfo', 
+            search: { 
+              deviceSearch: { 
+                groups: [{ id: groupId }] 
+              } 
+            }, 
+            credentials: context.credentials 
+          };
+
+          post('Get', params, callback, errorCallback);
+        },
+        function(error) {
+          console.log("Authentication failed:", error);
+          showToast('Unable to authenticate with the tracking service', 'LONG');
+          if (errorCallback) errorCallback('Authentication failed');
+        }
+      );
+      return;
+    }
+
     const params = { 
       typeName: 'DeviceStatusInfo', 
       search: { 
@@ -317,6 +617,35 @@ const APIService = (context) => {
   };
 
   const getDevicesStatusInfoByGroups = (groups, callback, errorCallback) => {
+    // Check for credentials
+    if (!context.credentials) {
+      console.log("No credentials available - trying to authenticate");
+      
+      authenticate(
+        function(response) {
+          console.log("Authentication successful, now fetching device status info");
+          // Now that we're authenticated, retry the original request
+          const params = { 
+            typeName: 'DeviceStatusInfo', 
+            search: { 
+              deviceSearch: { 
+                groups 
+              } 
+            }, 
+            credentials: context.credentials 
+          };
+
+          post('Get', params, callback, errorCallback);
+        },
+        function(error) {
+          console.log("Authentication failed:", error);
+          showToast('Unable to authenticate with the tracking service', 'LONG');
+          if (errorCallback) errorCallback('Authentication failed');
+        }
+      );
+      return;
+    }
+
     const params = { 
       typeName: 'DeviceStatusInfo', 
       search: { 
