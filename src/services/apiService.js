@@ -2,6 +2,8 @@ import axios from 'axios';
 import { showToast } from '../utils/toast';
 import { LOADING } from '../constants';
 import { useAppState } from './stateService';
+import { firestore } from '../services/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 // Create a hook-based API service
 export function useApiService() {
@@ -19,10 +21,32 @@ export function useApiService() {
     } 
   });
   
-  const credentials = { 
-    database: 'turbotruck', 
-    userName: 'admin@vardeman.com', 
-    password: 'h1XJv#k4yI!ChpM5' 
+  // Initialize empty credentials
+  let credentials = { 
+    database: '', 
+    userName: '', 
+    password: '' 
+  };
+  
+  // Function to fetch credentials from Firestore
+  const fetchCredentials = async () => {
+    try {
+      const credentialDoc = await getDoc(doc(firestore, 'app', 'app-credential'));
+      if (credentialDoc.exists()) {
+        const data = credentialDoc.data();
+        credentials.database = data.database;
+        credentials.userName = data.userName;
+        credentials.password = data.password;
+        console.log("Credentials fetched from Firestore");
+        return true;
+      } else {
+        console.error("Credentials document not found in Firestore");
+        return false;
+      }
+    } catch (error) {
+      console.error("Error fetching credentials:", error);
+      return false;
+    }
   };
 
   // Private helper methods
@@ -61,7 +85,17 @@ export function useApiService() {
   };
 
   // Public API methods
-  const authenticate = (callback, errorCallback) => {
+  const authenticate = async (callback, errorCallback) => {
+    // Ensure credentials are loaded first
+    if (!credentials.database || !credentials.userName || !credentials.password) {
+      const success = await fetchCredentials();
+      if (!success) {
+        showToast('Unable to load API credentials', 'LONG');
+        if (errorCallback) errorCallback('Credential loading failed');
+        return;
+      }
+    }
+    
     post(
       'Authenticate',
       credentials,
@@ -82,7 +116,7 @@ export function useApiService() {
     );
   };
 
-  const getGroup = (groupId, callback, errorCallback) => {
+  const getGroup = async (groupId, callback, errorCallback) => {
     // Check for credentials before proceeding
     if (!state.credentials) {
       console.log("No credentials available - trying to authenticate");
@@ -123,7 +157,7 @@ export function useApiService() {
     post('Get', params, callback, errorCallback);
   };
 
-  const getDevices = (groupId, callback, errorCallback) => {
+  const getDevices = async (groupId, callback, errorCallback) => {
     // Check for credentials before proceeding
     if (!state.credentials) {
       console.log("No credentials available - trying to authenticate");
@@ -162,7 +196,7 @@ export function useApiService() {
     post('Get', params, callback, errorCallback);
   };
 
-  const getDevicesByGroups = (groups, callback, errorCallback) => {
+  const getDevicesByGroups = async (groups, callback, errorCallback) => {
     // Check for credentials before proceeding
     if (!state.credentials) {
       console.log("No credentials available - trying to authenticate");
@@ -201,7 +235,7 @@ export function useApiService() {
     post('Get', params, callback, errorCallback);
   };
 
-  const getDeviceById = (id, callback, errorCallback) => {
+  const getDeviceById = async (id, callback, errorCallback) => {
     // Check for credentials before proceeding
     if (!state.credentials) {
       console.log("No credentials available - trying to authenticate");
@@ -240,7 +274,7 @@ export function useApiService() {
     post('Get', params, callback, errorCallback);
   };
 
-  const getDevicesStatusInfo = (groupId, callback, errorCallback) => {
+  const getDevicesStatusInfo = async (groupId, callback, errorCallback) => {
     // Check for credentials before proceeding
     if (!state.credentials) {
       console.log("No credentials available - trying to authenticate");
@@ -283,7 +317,7 @@ export function useApiService() {
     post('Get', params, callback, errorCallback);
   };
 
-  const getDevicesStatusInfoByGroups = (groups, callback, errorCallback) => {
+  const getDevicesStatusInfoByGroups = async (groups, callback, errorCallback) => {
     // Check for credentials
     if (!state.credentials) {
       console.log("No credentials available - trying to authenticate");
@@ -351,11 +385,32 @@ const APIService = (context) => {
     } 
   });
   
+  // Initialize empty credentials
+  let credentials = { 
+    database: '', 
+    userName: '', 
+    password: '' 
+  };
   
-  const credentials = { 
-    database: 'turbotruck', 
-    userName: 'admin@vardeman.com', 
-    password: 'h1XJv#k4yI!ChpM5' 
+  // Function to fetch credentials from Firestore
+  const fetchCredentials = async () => {
+    try {
+      const credentialDoc = await getDoc(doc(firestore, 'app', 'app-credential'));
+      if (credentialDoc.exists()) {
+        const data = credentialDoc.data();
+        credentials.database = data.database;
+        credentials.userName = data.userName;
+        credentials.password = data.password;
+        console.log("Credentials fetched from Firestore");
+        return true;
+      } else {
+        console.error("Credentials document not found in Firestore");
+        return false;
+      }
+    } catch (error) {
+      console.error("Error fetching credentials:", error);
+      return false;
+    }
   };
 
   // Private methods
@@ -394,7 +449,17 @@ const APIService = (context) => {
   };
 
   // Keep the same method signatures for backward compatibility
-  const authenticate = (callback, errorCallback) => {
+  const authenticate = async (callback, errorCallback) => {
+    // Ensure credentials are loaded first
+    if (!credentials.database || !credentials.userName || !credentials.password) {
+      const success = await fetchCredentials();
+      if (!success) {
+        showToast('Unable to load API credentials', 'LONG');
+        if (errorCallback) errorCallback('Credential loading failed');
+        return;
+      }
+    }
+    
     post(
       'Authenticate',
       credentials,
@@ -415,7 +480,7 @@ const APIService = (context) => {
     );
   };
 
-  const getGroup = (groupId, callback, errorCallback) => {
+  const getGroup = async (groupId, callback, errorCallback) => {
     // Check for credentials before proceeding
     if (!context.credentials) {
       console.log("No credentials available - trying to authenticate");
@@ -456,7 +521,7 @@ const APIService = (context) => {
     post('Get', params, callback, errorCallback);
   };
 
-  const getDevices = (groupId, callback, errorCallback) => {
+  const getDevices = async (groupId, callback, errorCallback) => {
     // Check for credentials before proceeding
     if (!context.credentials) {
       console.log("No credentials available - trying to authenticate");
@@ -495,7 +560,7 @@ const APIService = (context) => {
     post('Get', params, callback, errorCallback);
   };
 
-  const getDevicesByGroups = (groups, callback, errorCallback) => {
+  const getDevicesByGroups = async (groups, callback, errorCallback) => {
     // Check for credentials before proceeding
     if (!context.credentials) {
       console.log("No credentials available - trying to authenticate");
@@ -534,7 +599,7 @@ const APIService = (context) => {
     post('Get', params, callback, errorCallback);
   };
 
-  const getDeviceById = (id, callback, errorCallback) => {
+  const getDeviceById = async (id, callback, errorCallback) => {
     // Check for credentials before proceeding
     if (!context.credentials) {
       console.log("No credentials available - trying to authenticate");
@@ -573,7 +638,7 @@ const APIService = (context) => {
     post('Get', params, callback, errorCallback);
   };
 
-  const getDevicesStatusInfo = (groupId, callback, errorCallback) => {
+  const getDevicesStatusInfo = async (groupId, callback, errorCallback) => {
     // Check for credentials before proceeding
     if (!context.credentials) {
       console.log("No credentials available - trying to authenticate");
@@ -616,7 +681,7 @@ const APIService = (context) => {
     post('Get', params, callback, errorCallback);
   };
 
-  const getDevicesStatusInfoByGroups = (groups, callback, errorCallback) => {
+  const getDevicesStatusInfoByGroups = async (groups, callback, errorCallback) => {
     // Check for credentials
     if (!context.credentials) {
       console.log("No credentials available - trying to authenticate");
